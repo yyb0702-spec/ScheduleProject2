@@ -2,14 +2,14 @@ package com.example.schedule_app.schedule.controller;
 
 import com.example.schedule_app.schedule.dto.CreateScheduleRequest;
 import com.example.schedule_app.schedule.dto.CreateScheduleResponse;
+import com.example.schedule_app.schedule.dto.GetOneScheduleResponse;
 import com.example.schedule_app.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +23,20 @@ public class ScheduleController {
     {
         CreateScheduleResponse result = scheduleService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    }
+
+    @GetMapping("/{scheduleId}")
+    public ResponseEntity<GetOneScheduleResponse> getOneSchedule(@PathVariable Long scheduleId)
+    {
+        GetOneScheduleResponse result = scheduleService.getOne(scheduleId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<GetOneScheduleResponse>> getAllSchedule()
+    {
+        List<GetOneScheduleResponse> result = scheduleService.getAll();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 
