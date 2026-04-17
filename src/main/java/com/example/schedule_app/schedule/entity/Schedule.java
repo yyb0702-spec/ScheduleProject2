@@ -32,9 +32,8 @@ public class Schedule extends BaseEntity{
         this.content=content;
     }
 
-    public void updateSchedule(String name, String title, String content)
+    public void updateSchedule(String title, String content)
     {
-        this.name=name;
         this.title=title;
         this.content=content;
     }

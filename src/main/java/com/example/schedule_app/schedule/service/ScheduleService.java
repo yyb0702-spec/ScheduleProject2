@@ -1,8 +1,6 @@
 package com.example.schedule_app.schedule.service;
 
-import com.example.schedule_app.schedule.dto.CreateScheduleRequest;
-import com.example.schedule_app.schedule.dto.CreateScheduleResponse;
-import com.example.schedule_app.schedule.dto.GetOneScheduleResponse;
+import com.example.schedule_app.schedule.dto.*;
 import com.example.schedule_app.schedule.entity.Schedule;
 import com.example.schedule_app.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,5 +56,21 @@ public class ScheduleService {
                         schedule.getModifiedAt()
                 ))
                 .toList();
+    }
+    //────────────────────────────────────수정────────────────────────────────────
+    @Transactional
+    public UpdateScheduleResponse updateSchedule(Long scheduleId, UpdateScheduleRequest request) {
+
+            Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
+                    () -> new IllegalStateException("없는 스케쥴입니다")
+            );
+            schedule.updateSchedule(request.getTitle(),request.getContent());
+
+            return new UpdateScheduleResponse(schedule.getId(),
+                    schedule.getName(),
+                    schedule.getTitle(),
+                    schedule.getContent(),
+                    schedule.getCreatedAt(),
+                    schedule.getModifiedAt());
     }
 }
