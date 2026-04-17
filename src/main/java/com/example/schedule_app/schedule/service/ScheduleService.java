@@ -73,4 +73,14 @@ public class ScheduleService {
                     schedule.getCreatedAt(),
                     schedule.getModifiedAt());
     }
+    //────────────────────────────────────삭제────────────────────────────────────
+    public void delete(Long scheduleId) {
+        boolean existence = scheduleRepository.existsById(scheduleId);
+
+        if (!existence) {
+            throw new IllegalStateException("없는 스케쥴입니다.");
+        }
+
+        scheduleRepository.deleteById(scheduleId);
+    }
 }
