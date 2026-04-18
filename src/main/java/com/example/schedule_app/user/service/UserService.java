@@ -69,4 +69,15 @@ public class UserService {
                 user.getCreatedAt(),
                 user.getModifiedAt());
     }
+    //────────────────────────────────────삭제────────────────────────────────────
+    @Transactional
+    public void delete(Long userId) {
+        boolean existence = userRepository.existsById(userId);
+
+        if (!existence) {
+            throw new IllegalStateException("없는 유저입니다.");
+        }
+
+        userRepository.deleteById(userId);
+    }
 }
