@@ -1,8 +1,6 @@
 package com.example.schedule_app.user.service;
 
-import com.example.schedule_app.user.dto.CreateUserRequest;
-import com.example.schedule_app.user.dto.CreateUserResponse;
-import com.example.schedule_app.user.dto.GetOneUserResponse;
+import com.example.schedule_app.user.dto.*;
 import com.example.schedule_app.user.entity.User;
 import com.example.schedule_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +19,7 @@ public class UserService {
     @Transactional
     public CreateUserResponse save(CreateUserRequest request) {
 
-        User user = new User(request.getName(),request.getEmail());
+        User user = new User(request.getName(), request.getEmail());
         User savedUser = userRepository.save(user);
 
         return new CreateUserResponse(savedUser.getId(),
@@ -30,6 +28,7 @@ public class UserService {
                 savedUser.getCreatedAt(),
                 savedUser.getModifiedAt());
     }
+
     //────────────────────────────────────단건조회────────────────────────────────────
     @Transactional(readOnly = true)
     public GetOneUserResponse getOne(Long userId) {
@@ -42,19 +41,32 @@ public class UserService {
                 user.getCreatedAt(),
                 user.getModifiedAt());
     }
+
     //────────────────────────────────────전체조회────────────────────────────────────
     @Transactional(readOnly = true)
     public List<GetOneUserResponse> getAll() {
-            List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findAll();
 
-            return users.stream()
-                    .map(user -> new GetOneUserResponse(
-                            user.getId(),
-                            user.getName(),
-                            user.getEmail(),
-                            user.getCreatedAt(),
-                            user.getModifiedAt()
-                    ))
-                    .toList();
-        }
+        return users.stream()
+                .map(user -> new GetOneUserResponse(
+                        user.getId(),
+                        user.getName(),
+                        user.getEmail(),
+                        user.getCreatedAt(),
+                        user.getModifiedAt()
+                ))
+                .toList();
+    }
+    //────────────────────────────────────수정────────────────────────────────────
+    @Transactional
+    public UpdateUserResponse update(Long userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+        user.userUpdate(request.getName(),request.getEmail());
+        return new UpdateUserResponse(user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                user.getModifiedAt());
+    }
 }

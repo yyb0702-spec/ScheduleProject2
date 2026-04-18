@@ -1,8 +1,6 @@
 package com.example.schedule_app.user.controller;
 
-import com.example.schedule_app.user.dto.CreateUserRequest;
-import com.example.schedule_app.user.dto.CreateUserResponse;
-import com.example.schedule_app.user.dto.GetOneUserResponse;
+import com.example.schedule_app.user.dto.*;
 import com.example.schedule_app.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -36,6 +34,13 @@ public class UserController {
     public ResponseEntity<List<GetOneUserResponse>> getAllUser()
     {
         List<GetOneUserResponse> result = userService.getAll();
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UpdateUserResponse> updateUser(@PathVariable Long userId ,@RequestBody UpdateUserRequest request)
+    {
+        UpdateUserResponse result = userService.update(userId,request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
