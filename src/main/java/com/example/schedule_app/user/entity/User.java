@@ -1,6 +1,6 @@
 package com.example.schedule_app.user.entity;
 
-import com.example.schedule_app.schedule.entity.BaseEntity;
+import com.example.schedule_app.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

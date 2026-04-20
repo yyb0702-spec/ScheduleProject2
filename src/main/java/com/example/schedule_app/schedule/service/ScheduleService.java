@@ -1,5 +1,7 @@
 package com.example.schedule_app.schedule.service;
 
+import com.example.schedule_app.common.exception.ScheduleNotFoundException;
+import com.example.schedule_app.common.exception.UserNotFoundException;
 import com.example.schedule_app.schedule.dto.*;
 import com.example.schedule_app.schedule.entity.Schedule;
 import com.example.schedule_app.schedule.repository.ScheduleRepository;
@@ -22,7 +24,7 @@ public class ScheduleService {
     @Transactional
     public CreateScheduleResponse save(CreateScheduleRequest request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new UserNotFoundException("유저가 존재하지 않습니다."));
 
         Schedule schedule = new Schedule(user,request.getTitle(),request.getContent());
         Schedule saveSchedule = scheduleRepository.save(schedule);
@@ -37,7 +39,7 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public GetOneScheduleResponse getOne(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalStateException("없는 스케쥴입니다")
+                () -> new ScheduleNotFoundException("없는 스케쥴입니다")
         );
 
         return new GetOneScheduleResponse(schedule.getId(),
@@ -69,7 +71,7 @@ public class ScheduleService {
     public UpdateScheduleResponse updateSchedule(Long scheduleId, UpdateScheduleRequest request) {
 
             Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                    () -> new IllegalStateException("없는 스케쥴입니다")
+                    () -> new ScheduleNotFoundException("없는 스케쥴입니다")
             );
             schedule.updateSchedule(request.getTitle(),request.getContent());
 
@@ -86,7 +88,7 @@ public class ScheduleService {
         boolean existence = scheduleRepository.existsById(scheduleId);
 
         if (!existence) {
-            throw new IllegalStateException("없는 스케쥴입니다.");
+            throw new ScheduleNotFoundException("없는 스케쥴입니다.");
         }
 
         scheduleRepository.deleteById(scheduleId);
