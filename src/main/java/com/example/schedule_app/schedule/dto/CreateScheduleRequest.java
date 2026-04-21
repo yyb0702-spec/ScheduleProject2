@@ -12,6 +12,5 @@ public class CreateScheduleRequest {
     private String title;
     @Size(min = 10, max= 255)
     private String content;
-    private Long userId;
 
 }

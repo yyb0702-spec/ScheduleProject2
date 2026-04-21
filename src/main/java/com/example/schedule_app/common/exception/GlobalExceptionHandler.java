@@ -4,6 +4,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,8 +15,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleIllegalStateException(ServiceException  ex)
     {
         return ResponseEntity
-                .status(ex.getStatus())
-                .body(ex.getMessage());
+                .status(ex.getStatus()) //HTTP 메소드
+                .body(ex.getMessage()); //메세지
+    }
+
+    @ExceptionHandler(ServletRequestBindingException.class)
+    public ResponseEntity<String> handleServletRequestBindingException(ServletRequestBindingException e)
+    {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("로그인이 필요합니다.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

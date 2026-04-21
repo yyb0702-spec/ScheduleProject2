@@ -34,8 +34,8 @@ public class Schedule extends BaseEntity {
 
     public void updateSchedule(String title, String content)
     {
-        this.title=title;
-        this.content=content;
+        if (title != null) this.title = title; //입력값없으면 기존값
+        if (content != null) this.content = content; //입력값없으면 기존값
     }
 
 
