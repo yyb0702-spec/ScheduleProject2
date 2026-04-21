@@ -1,5 +1,46 @@
+## 📅 일정관리 앱
+Spring Boot를 기반으로 한 일정 관리 REST API 서버입니다
+
+사용자는 회원가입 후 로그인하여 일정(Schedule)을 생성하고, 
+
+해당 일정에 댓글(Comment)을 작성할 수 있습니다.
+## ⚙️ 기능
+### 👤 User (회원)
+- 회원 생성
+- 단건 조회
+- 전체 조회
+- 수정
+- 삭제
+### 📅 Schedule (일정)
+- 일정 생성 (로그인 사용자 기준)
+- 단건 조회 (본인 일정만)
+- 전체 조회 (본인 일정 목록)
+- 수정 (본인 일정만)
+- 삭제 (댓글 포함 삭제)
+### 💬 Comment (댓글)
+- 댓글 생성 (특정 일정에 작성)
+- 특정 일정의 댓글 목록 조회
+- 댓글 수정 (본인 댓글만)
+- 댓글 삭제 (본인 댓글만)
+### 🔐 인증 / 인가
+- 비밀번호 암호화 (PasswordEncoder)
+- 세션 기반 인증 (HttpSession)
+- 로그인 시 SessionUser 저장
+
+## 🛠 기술 스택
+- Java 17
+- Spring Boot
+- MySQL
+- Spring Data JPA
+- Gradle
+- Postman
+
+## 📊 ERD
+![ERD](./docs/ERD.png)
 ## 📌 API 명세서
-### 📅 일정 API
+
+<details>
+<summary><strong>📅 일정 API</strong></summary>
 
 | 기능       | Method | URL                     | 상태코드               |
 | -------- | ------ | ----------------------- | ------------------ |
@@ -146,8 +187,10 @@ ex)
 - 401 Unauthorized (로그인 필요)
 - 404 Not Found (일정 없음)
 </details>
+</details>
 
-### 👤 유저 API
+<details>
+<summary><strong>👤 유저 API</strong></summary>
 
 | 기능       | Method | URL             | 상태코드               |
 | -------- | ------ | --------------- | ------------------ |
@@ -287,8 +330,10 @@ ex)
 - 401 Unauthorized (로그인 필요)
 - 404 Not Found (유저 없음)
 </details>
+</details>
 
-### 🔐 인증 API
+<details>
+<summary><strong>🔐 인증 API</strong></summary>
 
 | 기능   | Method | URL     | 상태코드          |
 | ---- | ------ | ------- | ------------- |
@@ -339,3 +384,41 @@ ex)
 ### Behavior
 세션 무효화
 </details>
+</details>
+
+## 📂 구조
+- 📦 project
+- ┣ 📂 user / (controller,dto,service,entity,repository)
+- ┣ 📂 schedule / (controller,dto,service,entity,repository)
+- ┣ 📂 comment / (controller,dto,service,entity,repository)
+- ┣ 📂 auth / (controller,dto,service)
+- ┣ 📂 common / (entity,exception)
+- ┗ 📂 config / (passwordEncoder)
+
+## 🔥 트러블슈팅
+### 1.일정 삭제 시 오류
+- comments.schedule_id → schedules.id 를 참조하는 외래키(FK) 존재
+- 일정 삭제 시 해당 일정에 연결된 댓글이 남아있음
+- DB가 데이터 무결성 보호를 위해 삭제 차단
+### 🛠 해결 방법
+댓글을 먼저 삭제한 후 일정 삭제
+```
+commentRepository.deleteAllByScheduleId(scheduleId);
+scheduleRepository.delete(schedule);
+```
+
+### 2.페이징 처리중 오류발생
+똑같은 List타입이라 stream으로 사용가능한줄 
+
+알고있었었는데 stream().toList() 사용으로 타입 불일치
+- Page는 단순 리스트가 아니라 페이지 정보 포함 객체
+### 🛠 해결 방법
+DTO 변환시 map() 으로 사용
+
+### 3.수정 시 입력값없을대 기존값 유지하려고 validation으로 해결시도
+
+- validation은 검증만 수행
+- 값 변경/유지는 서비스에서
+
+### 🛠 해결 방법
+업데이트 메소드에 값이없을시 기존값사용하는 로직 추가
