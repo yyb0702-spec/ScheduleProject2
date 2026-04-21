@@ -10,7 +10,7 @@ public class CreateScheduleRequest {
 
     @NotBlank(message = "제목을 입력해주세요")
     private String title;
-    @Size(min = 10, max= 255)
+    @Size(min = 10, max= 255, message= "10 자 이상 255 자 이하로 입력해주세요")
     private String content;
 
 }

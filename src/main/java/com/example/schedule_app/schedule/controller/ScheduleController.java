@@ -33,9 +33,9 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GetOneScheduleResponse>> getAllSchedule(@SessionAttribute(name = "loginUser") SessionUser sessionUser)
+    public ResponseEntity<List<GetAllScheduleResponse>> getAllSchedule(@SessionAttribute(name = "loginUser") SessionUser sessionUser)
     {
-        List<GetOneScheduleResponse> result = scheduleService.getAll(sessionUser);
+        List<GetAllScheduleResponse> result = scheduleService.getAll(sessionUser);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
     @PatchMapping("/{scheduleId}")

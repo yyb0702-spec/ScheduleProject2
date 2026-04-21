@@ -38,8 +38,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public GetOneUserResponse getOne(Long userId) {
 
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new UserNotFoundException("유저가 존재하지 않습니다."));
+        User user = findUserById(userId);
         return new GetOneUserResponse(user.getId(),
                 user.getName(),
                 user.getEmail(),
@@ -65,8 +64,7 @@ public class UserService {
     //────────────────────────────────────수정────────────────────────────────────
     @Transactional
     public UpdateUserResponse update(Long userId, UpdateUserRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new UserNotFoundException("유저가 존재하지 않습니다."));
+        User user = findUserById(userId);
         user.userUpdate(request.getName(),request.getEmail());
         return new UpdateUserResponse(user.getId(),
                 user.getName(),
@@ -84,5 +82,11 @@ public class UserService {
         }
 
         userRepository.deleteById(userId);
+    }
+
+    private User findUserById(Long userId)
+    {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("유저가 존재하지 않습니다"));
     }
 }
