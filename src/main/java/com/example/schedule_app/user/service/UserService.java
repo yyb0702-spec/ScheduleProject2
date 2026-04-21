@@ -16,7 +16,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder; //비밀번호 암호화
 
     //────────────────────────────────────생성────────────────────────────────────
     @Transactional
@@ -83,6 +83,7 @@ public class UserService {
 
         userRepository.deleteById(userId);
     }
+
 
     private User findUserById(Long userId)
     {

@@ -5,7 +5,6 @@ import com.example.schedule_app.comment.dto.*;
 import com.example.schedule_app.comment.entity.Comment;
 import com.example.schedule_app.comment.repository.CommentRepository;
 import com.example.schedule_app.common.exception.CommentNotFoundException;
-import com.example.schedule_app.common.exception.NotOwnerException;
 import com.example.schedule_app.common.exception.ScheduleNotFoundException;
 import com.example.schedule_app.common.exception.UserNotFoundException;
 import com.example.schedule_app.schedule.entity.Schedule;

@@ -18,17 +18,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-@Transactional(readOnly = true)
+    //────────────────────────────────────로그인────────────────────────────────────
+    @Transactional(readOnly = true)
     public LoginResponse login(@Valid LoginRequest request) {
 
-    User user = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new LoginException("이메일 또는 비밀번호가 일치하지 않습니다."));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new LoginException("이메일 또는 비밀번호가 일치하지 않습니다."));
 
-    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) { //equals 아닌 matches 로 비교
-        throw new LoginException("이메일 또는 비밀번호가 일치하지 않습니다.");
-    }
-    return new LoginResponse(user.getId(),
-            user.getName(),
-            user.getEmail());
+        //암호화된 DB속 비밀번호와 입력값 비교
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) { //equals 아닌 matches 로 비교
+            throw new LoginException("이메일 또는 비밀번호가 일치하지 않습니다.");
+        }
+        return new LoginResponse(user.getId(),
+                user.getName(),
+                user.getEmail());
     }
 }

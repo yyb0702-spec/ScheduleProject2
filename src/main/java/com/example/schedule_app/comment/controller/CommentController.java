@@ -27,7 +27,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    @GetMapping("/{commentId}")
+    @GetMapping
     public ResponseEntity<List<GetCommentResponse>> getAllComment(
             @PathVariable Long scheduleId
     ) {
