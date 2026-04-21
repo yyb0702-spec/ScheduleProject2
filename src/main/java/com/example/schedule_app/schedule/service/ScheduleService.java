@@ -12,6 +12,10 @@ import com.example.schedule_app.schedule.repository.ScheduleRepository;
 import com.example.schedule_app.user.entity.User;
 import com.example.schedule_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -66,20 +70,19 @@ public class ScheduleService {
 
     //────────────────────────────────────조회────────────────────────────────────
     @Transactional(readOnly = true)
-    public List<GetAllScheduleResponse> getAll(SessionUser sessionUser) {
+    public Page<GetAllScheduleResponse> getAll(SessionUser sessionUser,int page, int size) {
+        Pageable pageable = PageRequest.of(page, size > 0 ? size : 10,Sort.by(Sort.Direction.DESC, "modifiedAt"));
 
-        List<Schedule> schedules = scheduleRepository.findAllByUserId(sessionUser.id());
+        Page<Schedule> schedules = scheduleRepository.findAllByUserId(sessionUser.id(), pageable);
 
-        return schedules.stream()
-                .map(schedule -> new GetAllScheduleResponse(
-                        schedule.getId(),
-                        schedule.getTitle(),
-                        schedule.getContent(),
-                        schedule.getUser().getName(),
-                        schedule.getCreatedAt(),
-                        schedule.getModifiedAt()
-                ))
-                .toList();
+        return schedules.map(schedule -> new GetAllScheduleResponse(
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContent(),
+                schedule.getUser().getName(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt()
+        ));
     }
 
     //────────────────────────────────────수정────────────────────────────────────
