@@ -1,5 +1,6 @@
 package com.example.schedule_app.schedule.entity;
 
+import com.example.schedule_app.common.entity.BaseEntity;
 import com.example.schedule_app.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table (name = "schedules")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Schedule extends BaseEntity{
+public class Schedule extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +34,8 @@ public class Schedule extends BaseEntity{
 
     public void updateSchedule(String title, String content)
     {
-        this.title=title;
-        this.content=content;
+        if (title != null) this.title = title; //입력값없으면 기존값
+        if (content != null) this.content = content; //입력값없으면 기존값
     }
 
 

@@ -1,6 +1,6 @@
 package com.example.schedule_app.user.entity;
 
-import com.example.schedule_app.schedule.entity.BaseEntity;
+import com.example.schedule_app.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class User extends BaseEntity {
 
     public void userUpdate(String name,String email)
     {
-        this.name = name;
-        this.email = email;
+        if (name != null)this.name = name;
+        if (email != null)this.email = email;
     }
 }

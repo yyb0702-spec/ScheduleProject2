@@ -26,7 +26,7 @@ public class AuthController {
         LoginResponse result = authService.login(request);
 
         session.setAttribute("loginUser",
-                new SessionUser(result.getId(), result.getEmail()));
+                new SessionUser(result.id(), result.email()));
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }

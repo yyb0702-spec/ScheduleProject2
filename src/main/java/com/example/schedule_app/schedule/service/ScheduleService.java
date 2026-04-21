@@ -1,14 +1,23 @@
 package com.example.schedule_app.schedule.service;
 
+import com.example.schedule_app.auth.dto.SessionUser;
+import com.example.schedule_app.comment.dto.GetCommentResponse;
+import com.example.schedule_app.comment.entity.Comment;
+import com.example.schedule_app.comment.repository.CommentRepository;
+import com.example.schedule_app.common.exception.ScheduleNotFoundException;
+import com.example.schedule_app.common.exception.UserNotFoundException;
 import com.example.schedule_app.schedule.dto.*;
 import com.example.schedule_app.schedule.entity.Schedule;
 import com.example.schedule_app.schedule.repository.ScheduleRepository;
 import com.example.schedule_app.user.entity.User;
 import com.example.schedule_app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -17,14 +26,14 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     //────────────────────────────────────생성────────────────────────────────────
     @Transactional
-    public CreateScheduleResponse save(CreateScheduleRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+    public CreateScheduleResponse save(SessionUser sessionUser, CreateScheduleRequest request) {
+        User user = findUserById(sessionUser.id());
 
-        Schedule schedule = new Schedule(user,request.getTitle(),request.getContent());
+        Schedule schedule = new Schedule(user, request.getTitle(), request.getContent());
         Schedule saveSchedule = scheduleRepository.save(schedule);
         return new CreateScheduleResponse(saveSchedule.getId(),
                 saveSchedule.getTitle(),
@@ -33,62 +42,82 @@ public class ScheduleService {
                 saveSchedule.getCreatedAt(),
                 saveSchedule.getModifiedAt());
     }
-//────────────────────────────────────단건 조회────────────────────────────────────
+
+    //────────────────────────────────────단건 조회────────────────────────────────────
     @Transactional(readOnly = true)
-    public GetOneScheduleResponse getOne(Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalStateException("없는 스케쥴입니다")
-        );
+    public GetOneScheduleResponse getOne(SessionUser sessionUser , Long scheduleId) {
+        Schedule schedule = findOwnerSchedule(scheduleId,sessionUser.id());
+
+        List<Comment> comments = commentRepository.findAllByScheduleId(scheduleId);
+
+        List<GetCommentResponse> dtos = comments.stream()
+                .map(comment -> new GetCommentResponse(
+                        comment.getId(),
+                        comment.getContent(),
+                        comment.getCreatedAt(),
+                        comment.getModifiedAt()
+                ))
+                .toList();
 
         return new GetOneScheduleResponse(schedule.getId(),
                 schedule.getTitle(),
                 schedule.getContent(),
                 schedule.getUser().getName(),
                 schedule.getCreatedAt(),
-                schedule.getModifiedAt());
+                schedule.getModifiedAt(),
+                dtos);
     }
-//────────────────────────────────────조회────────────────────────────────────
+
+    //────────────────────────────────────조회────────────────────────────────────
     @Transactional(readOnly = true)
-    public List<GetOneScheduleResponse> getAll() {
+    public Page<GetAllScheduleResponse> getAll(SessionUser sessionUser,int page, int size) {
+        Pageable pageable = PageRequest.of(page, size > 0 ? size : 10,Sort.by(Sort.Direction.DESC, "modifiedAt"));
 
-        List<Schedule> schedules = scheduleRepository.findAll();
+        Page<Schedule> schedules = scheduleRepository.findAllByUserId(sessionUser.id(), pageable);
 
-        return schedules.stream()
-                .map(schedule -> new GetOneScheduleResponse(
-                        schedule.getId(),
-                        schedule.getTitle(),
-                        schedule.getContent(),
-                        schedule.getUser().getName(),
-                        schedule.getCreatedAt(),
-                        schedule.getModifiedAt()
-                ))
-                .toList();
+        return schedules.map(schedule -> new GetAllScheduleResponse(
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContent(),
+                schedule.getUser().getName(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt()
+        ));
     }
+
     //────────────────────────────────────수정────────────────────────────────────
     @Transactional
-    public UpdateScheduleResponse updateSchedule(Long scheduleId, UpdateScheduleRequest request) {
+    public UpdateScheduleResponse updateSchedule(SessionUser sessionUser, Long scheduleId, UpdateScheduleRequest request) {
 
-            Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                    () -> new IllegalStateException("없는 스케쥴입니다")
-            );
-            schedule.updateSchedule(request.getTitle(),request.getContent());
+        Schedule schedule = findOwnerSchedule(scheduleId,sessionUser.id());
 
-            return new UpdateScheduleResponse(schedule.getId(),
-                    schedule.getTitle(),
-                    schedule.getContent(),
-                    schedule.getUser().getName(),
-                    schedule.getCreatedAt(),
-                    schedule.getModifiedAt());
+        schedule.updateSchedule(request.getTitle(), request.getContent());
+
+        return new UpdateScheduleResponse(schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContent(),
+                schedule.getUser().getName(),
+                schedule.getCreatedAt(),
+                schedule.getModifiedAt());
     }
+
     //────────────────────────────────────삭제────────────────────────────────────
     @Transactional
-    public void delete(Long scheduleId) {
-        boolean existence = scheduleRepository.existsById(scheduleId);
+    public void delete(SessionUser sessionUser, Long scheduleId) {
 
-        if (!existence) {
-            throw new IllegalStateException("없는 스케쥴입니다.");
-        }
+        Schedule schedule = findOwnerSchedule(scheduleId,sessionUser.id());
 
+        commentRepository.deleteAllByScheduleId(scheduleId);//댓글 먼저삭제
         scheduleRepository.deleteById(scheduleId);
+    }
+
+    private User findUserById(Long userId)
+    {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("유저가 존재하지 않습니다."));
+    }
+    private Schedule findOwnerSchedule(Long scheduleId, Long userId) {
+        return scheduleRepository.findByIdAndUserId(scheduleId, userId)
+                .orElseThrow(() -> new ScheduleNotFoundException("일정을 찾을 수 없습니다."));
     }
 }
