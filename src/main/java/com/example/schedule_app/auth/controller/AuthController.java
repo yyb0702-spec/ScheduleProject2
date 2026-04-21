@@ -20,24 +20,26 @@ public class AuthController {
 
     private final AuthService authService;
 
+    //────────────────────────────────────로그인────────────────────────────────────
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request, HttpSession session)
     {
         LoginResponse result = authService.login(request);
 
         session.setAttribute("loginUser",
-                new SessionUser(result.id(), result.email()));
+                new SessionUser(result.id(), result.email())); // 입력한 세션 저장
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
+    //────────────────────────────────────로그아웃────────────────────────────────────
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@SessionAttribute(name="loginUser", required = false)SessionUser sessionUser, HttpSession session)
     {
-        if(sessionUser == null){
+        if(sessionUser == null){ //세션없는상태에선 에러메세지
             return ResponseEntity.badRequest().build();
         }
-        session.invalidate();
+        session.invalidate(); // 세션 삭제 , 로그인 해제
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

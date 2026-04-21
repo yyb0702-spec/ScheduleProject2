@@ -71,9 +71,13 @@ public class ScheduleService {
     //────────────────────────────────────조회────────────────────────────────────
     @Transactional(readOnly = true)
     public Page<GetAllScheduleResponse> getAll(SessionUser sessionUser,int page, int size) {
+        //Pageable = 페이지 정보를 담는 객체 (page, size, sort)
         Pageable pageable = PageRequest.of(page, size > 0 ? size : 10,Sort.by(Sort.Direction.DESC, "modifiedAt"));
-
+        //page: 가져올 페이지 번호 (0부터 시작)
+        //size: 한 페이지에 포함될 데이터 개수
+        //Sort.by("id").descending(): id 기준 내림차순 정렬
         Page<Schedule> schedules = scheduleRepository.findAllByUserId(sessionUser.id(), pageable);
+        //Page<T> = 페이지 결과를 담는 객체 (데이터 + 전체 페이지 수 등)
 
         return schedules.map(schedule -> new GetAllScheduleResponse(
                 schedule.getId(),
@@ -116,7 +120,7 @@ public class ScheduleService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("유저가 존재하지 않습니다."));
     }
-    private Schedule findOwnerSchedule(Long scheduleId, Long userId) {
+    private Schedule findOwnerSchedule(Long scheduleId, Long userId) { // 일정 조회 + 권한 검증을 동시에 수행
         return scheduleRepository.findByIdAndUserId(scheduleId, userId)
                 .orElseThrow(() -> new ScheduleNotFoundException("일정을 찾을 수 없습니다."));
     }
