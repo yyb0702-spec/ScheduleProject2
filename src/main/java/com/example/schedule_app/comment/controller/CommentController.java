@@ -4,6 +4,7 @@ package com.example.schedule_app.comment.controller;
 import com.example.schedule_app.auth.dto.SessionUser;
 import com.example.schedule_app.comment.dto.*;
 import com.example.schedule_app.comment.service.CommentService;
+import com.example.schedule_app.common.Const;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<CreateCommentResponse> saveComment(@SessionAttribute(name = "loginUser") SessionUser sessionUser ,@PathVariable Long scheduleId,@Valid @RequestBody CreateCommentRequest request)
+    public ResponseEntity<CreateCommentResponse> saveComment(@SessionAttribute(Const.SESSION_KEY) SessionUser sessionUser , @PathVariable Long scheduleId, @Valid @RequestBody CreateCommentRequest request)
     {
         CreateCommentResponse result = commentService.save(sessionUser,scheduleId,request);
 
@@ -36,14 +37,14 @@ public class CommentController {
     }
 
     @PatchMapping("/{commentId}")
-    public ResponseEntity<UpdateCommentResponse> updateComment(@SessionAttribute(name = "loginUser") SessionUser sessionUser,@PathVariable Long commentId, @Valid @RequestBody UpdateCommentRequest request)
+    public ResponseEntity<UpdateCommentResponse> updateComment(@SessionAttribute(Const.SESSION_KEY) SessionUser sessionUser,@PathVariable Long commentId, @Valid @RequestBody UpdateCommentRequest request)
     {
         UpdateCommentResponse result = commentService.update(sessionUser,commentId,request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(@SessionAttribute(name = "loginUser") SessionUser sessionUser,@PathVariable Long commentId)
+    public ResponseEntity<Void> deleteComment(@SessionAttribute(Const.SESSION_KEY) SessionUser sessionUser,@PathVariable Long commentId)
     {
         commentService.delete(sessionUser,commentId);
 

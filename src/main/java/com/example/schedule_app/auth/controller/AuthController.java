@@ -4,6 +4,7 @@ import com.example.schedule_app.auth.dto.LoginRequest;
 import com.example.schedule_app.auth.dto.LoginResponse;
 import com.example.schedule_app.auth.dto.SessionUser;
 import com.example.schedule_app.auth.service.AuthService;
+import com.example.schedule_app.common.Const;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class AuthController {
     {
         LoginResponse result = authService.login(request);
 
-        session.setAttribute("loginUser",
+        session.setAttribute(Const.SESSION_KEY,
                 new SessionUser(result.id(), result.email())); // 입력한 세션 저장
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
