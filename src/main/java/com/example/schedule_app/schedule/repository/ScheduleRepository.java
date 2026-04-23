@@ -14,6 +14,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule , Long> {
 
 
     Page<Schedule> findAllByUserId(Long userId, Pageable pageable);//Select * from schedule where user_id=? order by modified desc
-    //select count(*) from schedule where user_id=? 데이터조회쿼리,카운트쿼리 총 2개 실행
+    //select count(*) from schedule where user_id=? 데이터조회쿼리,카운트쿼리 페이징처리는 총 2개 실행
 
 }
