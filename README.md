@@ -42,13 +42,13 @@ Spring Boot를 기반으로 한 일정 관리 REST API 서버입니다
 <details>
 <summary><strong>📅 일정 API</strong></summary>
 
-| 기능       | Method | URL                     | 상태코드               |
-| -------- | ------ | ----------------------- | ------------------ |
-| 일정 생성    | POST   | /schedules              | 201, 400           |
-| 일정 전체 조회 | GET    | /schedules              | 200                |
-| 일정 단건 조회 | GET    | /schedules/{scheduleId} | 200, 404           |
-| 일정 수정    | PATCH  | /schedules/{scheduleId} | 200, 400, 401, 404 |
-| 일정 삭제    | DELETE | /schedules/{scheduleId} | 204, 401, 404      |
+| 기능       | Method | URL                     | 상태코드                     |
+| -------- | ------ | ----------------------- |--------------------------|
+| 일정 생성    | POST   | /schedules              | 201, 400 ,409            |
+| 일정 전체 조회 | GET    | /schedules              | 200                      |
+| 일정 단건 조회 | GET    | /schedules/{scheduleId} | 200, 404                 |
+| 일정 수정    | PATCH  | /schedules/{scheduleId} | 200, 400, 401, 404 , 409 |
+| 일정 삭제    | DELETE | /schedules/{scheduleId} | 204, 401, 404            |
 
 <details> <summary><strong>일정 생성</strong></summary>
 
@@ -82,6 +82,7 @@ ex)
 
 ### Error
 - 400 Bad Request (필수값 누락)
+- 409 CONFLICT (중복 이메일)
 </details>
 
 <details> <summary><strong>일정 전체 조회</strong></summary>
@@ -172,6 +173,7 @@ ex)
 - 400 Bad Request (요청값 오류)
 - 401 Unauthorized (로그인 필요)
 - 404 Not Found (일정 없음)
+- 409 CONFLICT(중복 이메일)
 </details>
 <details> <summary><strong>일정 삭제</strong></summary>
 

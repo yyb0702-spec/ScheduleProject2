@@ -1,5 +1,6 @@
 package com.example.schedule_app.user.service;
 
+import com.example.schedule_app.common.exception.EmailException;
 import com.example.schedule_app.common.exception.UserNotFoundException;
 import com.example.schedule_app.config.PasswordEncoder;
 import com.example.schedule_app.user.dto.*;
@@ -21,6 +22,8 @@ public class UserService {
     //────────────────────────────────────생성────────────────────────────────────
     @Transactional
     public CreateUserResponse save(CreateUserRequest request) {
+
+        duplicationEmail(request.getEmail());
 
         String encodePassword = passwordEncoder.encode(request.getPassword());
 
@@ -65,6 +68,7 @@ public class UserService {
     @Transactional
     public UpdateUserResponse update(Long userId, UpdateUserRequest request) {
         User user = findUserById(userId);
+        duplicationEmailUpdate(user, request.getEmail());
         user.userUpdate(request.getName(),request.getEmail());
         return new UpdateUserResponse(user.getId(),
                 user.getName(),
@@ -75,13 +79,9 @@ public class UserService {
     //────────────────────────────────────삭제────────────────────────────────────
     @Transactional
     public void delete(Long userId) {
-        boolean existence = userRepository.existsById(userId);
+        User user = findUserById(userId);
 
-        if (!existence) {
-            throw new UserNotFoundException("없는 유저입니다.");
-        }
-
-        userRepository.deleteById(userId);
+        userRepository.delete(user);
     }
 
 
@@ -89,5 +89,17 @@ public class UserService {
     {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("유저가 존재하지 않습니다"));
+    }
+
+    private void duplicationEmail(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailException("이미 존재하는 이메일입니다.");
+        }
+    }
+
+    private void duplicationEmailUpdate(User user, String email) {
+        if (!user.getEmail().equals(email) && userRepository.existsByEmail(email)) {
+            throw new EmailException("이미 존재하는 이메일입니다.");
+        }
     }
 }
